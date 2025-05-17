@@ -22,6 +22,7 @@ let now;
 let then = performance.now();
 let interval = 1000 / fps;
 let timeDelta;
+let dt = speed / fps;
 
 let paused = false;
 let bodies_dom;
@@ -107,10 +108,10 @@ function update() {
 
     for (let i = 0; i < bodies.length; i++) {
         body = bodies[i];
-        body.xVelocity += body.xAcceleration;
-        body.yVelocity += body.yAcceleration;
-        body.x += body.xVelocity;
-        body.y += body.yVelocity;
+        body.xVelocity += body.xAcceleration * dt;
+        body.yVelocity += body.yAcceleration * dt;
+        body.x += body.xVelocity * dt;
+        body.y += body.yVelocity * dt;
     }
 }
 
@@ -138,30 +139,17 @@ function animate(ctx, canvas) {
 
         if (delta > interval) {
             then = now - (delta % interval);
-
-            for (i = 0; i <= speed; i++) {
-                update();
-            }
+            update();
         }
     }
     draw(ctx, canvas);
 }
 
-function main() {
-    const canvas = document.getElementById("canvas")
-    let ctx = canvas.getContext("2d");
-
-    bodiesDeclaration();
-    animate(ctx, canvas);
-    console.log(bodies);
-}
-
-main();
-
 simulate_button.addEventListener("click", (() => {
     bodies = [];
 
     speed = speed_input.value;
+    dt = speed / fps;
     scale = scale_input.value;
     visual_scale = visual_scale_input.value;
     fps = fps_input.value;
@@ -291,3 +279,13 @@ menu.addEventListener("click", (e) => {
         delete_body(e.target);
     }
 });
+
+function main() {
+    const canvas = document.getElementById("canvas")
+    let ctx = canvas.getContext("2d");
+
+    simulate_button.click()
+    animate(ctx, canvas)
+}
+
+main();

@@ -30,9 +30,14 @@
         <div class="p-2 bg-black z-10 border-white border-b-[1px] border-r-[1px] rounded-br-lg flex-col items-center justify-center hidden max-h-full"
             id="menu">
 
+            <div class="flex justify-around w-full text-lg sm:text-xl md:text-2xl text-center items-center py-2">
+                <button id="pause_button">| |</button>
+                <button id="close_menu_button">←</button>
+            </div>
+
             <div class="flex justify-between items-center w-full gap-2">
-                <span>X SPEED:</span>
-                <input type="number" name="speed_input" id="speed_input" value="1"
+                <span>SPEED MULT:</span>
+                <input type="number" name="speed_input" id="speed_input" value="30"
                     class="bg-black border-white border-[1px] text-center">
             </div>
 
@@ -48,15 +53,10 @@
                     class="bg-black border-white border-[1px] text-center">
             </div>
 
-            <div class="flex justify-between items-center w-full gap-2">
+            <div class="flex justify-between items-center w-full gap-2 pb-4">
                 <span>FPS:</span>
                 <input type="number" name="fps_input" id="fps_input" value="60"
                     class="bg-black border-white border-[1px] text-center">
-            </div>
-
-            <div class="py-4 flex justify-around w-full text-lg sm:text-xl md:text-2xl text-center items-center">
-                <button id="pause_button">| |</button>
-                <button id="close_menu_button">←</button>
             </div>
 
             <div class="border-y-2 border-white p-2 w-full flex flex-col body">
@@ -176,7 +176,7 @@
                 Add body</button>
             <button id="simulate_button" class="text-lg sm:text-xl md:text-3xl pt-2">SIMULATE</button>
         </div>
-        <button id="open_menu_button" class="text-lg sm:text-xl md:text-3xl pt-4 sm:pt-12">→</button>
+        <button id="open_menu_button" class="text-3xl pt-4 sm:pt-12">→</button>
     </div>
     <script src="main.js"></script>
 </body>
