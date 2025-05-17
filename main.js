@@ -4,6 +4,11 @@ const scale_input = document.getElementById("scale_input");
 const visual_scale_input = document.getElementById("visual_scale_input");
 const fps_input = document.getElementById("fps_input");
 const pause_button = document.getElementById("pause_button");
+const open_menu_button = document.getElementById("open_menu_button");
+const close_menu_button = document.getElementById("close_menu_button");
+const menu = document.getElementById("menu");
+const add_body_button = document.getElementById("add_body_button");
+const menu_container = document.getElementById("menu_container");
 
 let bodies = [];
 const G = 6.67430e-11;
@@ -19,6 +24,12 @@ let interval = 1000 / fps;
 let timeDelta;
 
 let paused = false;
+let bodies_dom;
+let x_input_value, y_input_value, radius_input_value, mass_input_value, xvelocity_input_value, yvelocity_input_value, xaccel_input_value, yaccel_input_value, color_input_value;
+let x_input, y_input, radius_input, mass_input, xvelocity_input, yvelocity_input, xaccel_input, yaccel_input, color_input;
+let body_creator;
+let delete_body_button;
+let body_number = 1;
 
 class Body {
     constructor(x, y, radius, mass, color, xVelocity = 0, yVelocity = 0, xAcceleration = 0, yAcceleration = 0,) {
@@ -36,9 +47,31 @@ class Body {
 }
 
 function bodiesDeclaration() {
-    const yellowPlanet = new Body(50, 50, 80000, 6e30, "yellow", 0, 0);
-    const bluePlanet = new Body(30, 80, 30000, 6e25, "blue", 5e5, 3e5);
-    const whitePlanet = new Body(32, 85, 30000, 6e25, "white", 7e5, -1.3e6);
+    bodies_dom = document.getElementsByClassName("body");
+    Array.from(bodies_dom).forEach(body => {
+        x_input_value = parseFloat(body.querySelector("#x_input").value);
+        y_input_value = parseFloat(body.querySelector("#y_input").value);
+        radius_input_value = parseFloat(body.querySelector("#radius_input").value);
+        mass_input_value = parseFloat(body.querySelector("#mass_input").value);
+        color_input_value = body.querySelector("#color_input").value;
+        xvelocity_input_value = parseFloat(body.querySelector("#xvelocity_input").value);
+        yvelocity_input_value = parseFloat(body.querySelector("#yvelocity_input").value);
+        xaccel_input_value = parseFloat(body.querySelector("#xaccel_input").value);
+        yaccel_input_value = parseFloat(body.querySelector("#yaccel_input").value);
+
+        body_creator = new Body(
+            x_input_value,
+            y_input_value,
+            radius_input_value,
+            mass_input_value,
+            color_input_value,
+            xvelocity_input_value,
+            yvelocity_input_value,
+            xaccel_input_value,
+            yaccel_input_value
+        )
+
+    });
 }
 
 function update() {
@@ -109,9 +142,9 @@ function animate(ctx, canvas) {
             for (i = 0; i <= speed; i++) {
                 update();
             }
-            draw(ctx, canvas);
         }
     }
+    draw(ctx, canvas);
 }
 
 function main() {
@@ -151,3 +184,110 @@ pause_button.addEventListener("click", (() => {
         paused = true;
     }
 }))
+
+open_menu_button.addEventListener("click", (() => {
+    menu.style.display = "flex";
+    open_menu_button.style.display = "none";
+    menu_container.classList.add("overflow-y-auto");
+}))
+
+close_menu_button.addEventListener("click", (() => {
+    menu.style.display = "none";
+    open_menu_button.style.display = "flex";
+    menu_container.classList.remove("overflow-y-auto");
+}))
+
+add_body_button.addEventListener("click", (() => {
+    // Variables with default values
+    let color_input = "#f6b73c";
+    let x_input = 50;
+    let y_input = 50;
+    let radius_input = 80000;
+    let mass_input = 6e30;
+    let xvelocity_input = 0;
+    let yvelocity_input = 0;
+    let xaccel_input = 0;
+    let yaccel_input = 0;
+
+    // Create container div to hold everything
+    const container = document.createElement("div");
+    container.classList.add("border-b-2");
+    container.classList.add("border-white");
+    container.classList.add("p-2");
+    container.classList.add("w-full");
+    container.classList.add("flex");
+    container.classList.add("flex-col");
+    container.classList.add("body");
+
+    // Helper function to create input rows
+    function createRow(labelText, inputType, inputId, inputValue, extraClasses = "") {
+        const row = document.createElement("div");
+        row.className = "flex w-full justify-between";
+
+        const label = document.createElement("div");
+        label.textContent = labelText;
+        row.appendChild(label);
+
+        const input = document.createElement("input");
+        input.type = inputType;
+        input.id = inputId;
+        input.name = inputId;
+        input.value = inputValue;
+        input.className = "bg-black border-white border-[1px] text-center " + extraClasses;
+
+        row.appendChild(input);
+        return row;
+    }
+
+    // First row with color picker and heading
+    const firstRow = document.createElement("div");
+    firstRow.className = "flex justify-between";
+
+    const heading = document.createElement("h3");
+    heading.className = "text-md sm:text-lg md:text-xl";
+    body_number += 1;
+    heading.textContent = "Body-" + body_number;
+
+    const colorPicker = document.createElement("input");
+    colorPicker.type = "color";
+    colorPicker.id = "color_input";
+    colorPicker.classList.add("w-1/3")
+    colorPicker.value = color_input;
+
+    delete_body_button = document.createElement("button");
+    delete_body_button.textContent = "X";
+    delete_body_button.classList.add("text-lg");
+    delete_body_button.classList.add("sm:text-xl");
+    delete_body_button.classList.add("md:text-3xl");
+    delete_body_button.classList.add("delete_body_button");
+
+    firstRow.appendChild(heading);
+    firstRow.appendChild(colorPicker);
+    firstRow.appendChild(delete_body_button)
+
+    // Append first row to container
+    container.appendChild(firstRow);
+
+    // Append all other rows with labels and inputs
+    container.appendChild(createRow("X pos:", "number", "x_input", x_input));
+    container.appendChild(createRow("Y pos:", "number", "y_input", y_input));
+    container.appendChild(createRow("Radius:", "number", "radius_input", radius_input));
+    container.appendChild(createRow("Mass:", "number", "mass_input", mass_input));
+    container.appendChild(createRow("Init X Velocity:", "number", "xvelocity_input", xvelocity_input));
+    container.appendChild(createRow("Init Y Velocity:", "number", "yvelocity_input", yvelocity_input));
+    container.appendChild(createRow("Init X Accel:", "number", "xaccel_input", xaccel_input));
+    container.appendChild(createRow("Init Y Accel:", "number", "yaccel_input", yaccel_input));
+
+    // Append container to body or any other element in your page
+    add_body_button.parentNode.insertBefore(container, add_body_button);
+}))
+
+function delete_body(button) {
+    button.parentNode.parentNode.remove()
+}
+
+menu.addEventListener("click", (e) => {
+    if (e.target.classList.contains("delete_body_button")) {
+        delete_body(e.target);
+    }
+});
