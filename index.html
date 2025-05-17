@@ -37,19 +37,19 @@
 
             <div class="flex justify-between items-center w-full gap-2">
                 <span>SPEED MULT:</span>
-                <input type="number" name="speed_input" id="speed_input" value="30"
+                <input type="number" name="speed_input" id="speed_input" value="1e6"
                     class="bg-black border-white border-[1px] text-center">
             </div>
 
             <div class="flex justify-between items-center w-full gap-2">
                 <span>SCALE:</span>
-                <input type="number" name="scale_input" id="scale_input" value="1e-6"
+                <input type="number" name="scale_input" id="scale_input" value="1e9"
                     class="bg-black border-white border-[1px] text-center">
             </div>
 
             <div class="flex justify-between items-center w-full gap-2">
                 <span>VISUAL SCALE:</span>
-                <input type="number" name="visual_scale_input" id="visual_scale_input" value="100"
+                <input type="number" name="visual_scale_input" id="visual_scale_input" value="1e5"
                     class="bg-black border-white border-[1px] text-center">
             </div>
 
@@ -69,13 +69,13 @@
                 <div class="flex w-full justify-between">
                     <div>X pos:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="x_input"
-                        id="x_input" value="50">
+                        id="x_input" value="500">
                 </div>
 
                 <div class="flex w-full justify-between">
                     <div>Y pos:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="y_input"
-                        id="y_input" value="50">
+                        id="y_input" value="500">
                 </div>
 
                 <div class="flex w-full justify-between">
@@ -125,13 +125,13 @@
                 <div class="flex w-full justify-between">
                     <div>X pos:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="x_input"
-                        id="x_input" value="30">
+                        id="x_input" value="300">
                 </div>
 
                 <div class="flex w-full justify-between">
                     <div>Y pos:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="y_input"
-                        id="y_input" value="30">
+                        id="y_input" value="300">
                 </div>
 
                 <div class="flex w-full justify-between">
@@ -149,7 +149,7 @@
                 <div class="flex w-full justify-between">
                     <div>Init X Velocity:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="xvelocity_input"
-                        id="xvelocity_input" value="1e6">
+                        id="xvelocity_input" value="2e10">
                 </div>
 
                 <div class="flex w-full justify-between">
@@ -178,6 +178,16 @@
         </div>
         <button id="open_menu_button" class="text-3xl pt-4 sm:pt-12">→</button>
     </div>
+
+    <!-- scales -->
+    <div
+        class="absolute bottom-10 right-10 border-t-2 border-x-[1px] border-white w-[200px] max-w-[200px] min-w-[200px] text-white text-center">
+        <div id="scale"></div>
+        <div id="time_scale"></div>
+    </div>
+    <div></div>
+
+
     <script src="main.js"></script>
 </body>
 

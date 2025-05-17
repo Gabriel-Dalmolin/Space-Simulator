@@ -9,11 +9,13 @@ const close_menu_button = document.getElementById("close_menu_button");
 const menu = document.getElementById("menu");
 const add_body_button = document.getElementById("add_body_button");
 const menu_container = document.getElementById("menu_container");
+const screen_scale = document.getElementById("scale");
+const time_scale = document.getElementById("time_scale");
 
 let bodies = [];
 const G = 6.67430e-11;
 
-let scale = 1e-6;
+let scale = 1e6;
 let visual_scale = 1e2;
 
 let fps = 60;
@@ -22,7 +24,8 @@ let now;
 let then = performance.now();
 let interval = 1000 / fps;
 let timeDelta;
-let dt = speed / fps;
+let dt = 86400 / fps;
+let accumulator = 0;
 
 let paused = false;
 let bodies_dom;
@@ -34,13 +37,13 @@ let body_number = 1;
 
 class Body {
     constructor(x, y, radius, mass, color, xVelocity = 0, yVelocity = 0, xAcceleration = 0, yAcceleration = 0,) {
-        this.x = x * window.innerWidth / 100 / scale;
-        this.y = y * window.innerHeight / 100 / scale;
-        this.xVelocity = xVelocity;
-        this.yVelocity = yVelocity;
+        this.x = x / 1000 * scale;
+        this.y = y / 1000 * scale;
+        this.xVelocityHalf = xVelocity - xAcceleration * dt / 2;
+        this.yVelocityHalf = yVelocity - yAcceleration * dt / 2;
         this.xAcceleration = xAcceleration;
         this.yAcceleration = yAcceleration;
-        this.radius = radius * scale * visual_scale;
+        this.radius = radius / scale * visual_scale;
         this.mass = mass;
         this.color = color;
         bodies.push(this);
@@ -108,10 +111,10 @@ function update() {
 
     for (let i = 0; i < bodies.length; i++) {
         body = bodies[i];
-        body.xVelocity += body.xAcceleration * dt;
-        body.yVelocity += body.yAcceleration * dt;
-        body.x += body.xVelocity * dt;
-        body.y += body.yVelocity * dt;
+        body.xVelocityHalf += body.xAcceleration * dt;
+        body.yVelocityHalf += body.yAcceleration * dt;
+        body.x += body.xVelocityHalf * dt / scale;
+        body.y += body.yVelocityHalf * dt / scale;
     }
 }
 
@@ -125,7 +128,7 @@ function draw(ctx, canvas) {
         ctx.beginPath();
         body = bodies[i];
         ctx.fillStyle = body.color;
-        ctx.arc(body.x * scale, body.y * scale, body.radius, 0, Math.PI * 2);
+        ctx.arc(body.x * window.innerWidth / scale, body.y * window.innerHeight / scale, body.radius, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -133,13 +136,17 @@ function draw(ctx, canvas) {
 
 function animate(ctx, canvas) {
     requestAnimationFrame(() => animate(ctx, canvas));
+
     if (!paused) {
         now = performance.now();
-        let delta = now - then;
+        let delta = (now - then) / 1000;  // convert ms to seconds
+        then = now;
 
-        if (delta > interval) {
-            then = now - (delta % interval);
+        accumulator += delta * speed;  // speed scales simulation time
+
+        while (accumulator >= dt) {
             update();
+            accumulator -= dt;
         }
     }
     draw(ctx, canvas);
@@ -154,6 +161,8 @@ simulate_button.addEventListener("click", (() => {
     visual_scale = visual_scale_input.value;
     fps = fps_input.value;
 
+    screen_scale.textContent = (200 * scale).toExponential(1) + " km";
+    time_scale.textContent = parseFloat(speed).toExponential() + " days/second";
     bodiesDeclaration();
 }))
 
