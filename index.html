@@ -22,7 +22,7 @@
 </head>
 
 <body class="flex flex-col items-center justify-center h-[100dvh] w-[100dvw] relative font-orbitron overflow-hidden">
-    <canvas id="canvas" class="bg-black w-full h-full z-0">
+    <canvas id="canvas" class="bg-black w-full h-full z-0 cursor-grab">
         Your browser cannot run this website
     </canvas>
     <div class="flex gap-2 text-white absolute top-0 left-0 items-center flex-wrap max-h-[80vh] scroll"
@@ -37,7 +37,7 @@
 
             <div class="flex justify-between items-center w-full gap-2">
                 <span>SPEED MULT:</span>
-                <input type="number" name="speed_input" id="speed_input" value="1e6"
+                <input type="number" name="speed_input" id="speed_input" value="30"
                     class="bg-black border-white border-[1px] text-center">
             </div>
 
@@ -69,13 +69,13 @@
                 <div class="flex w-full justify-between">
                     <div>X pos:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="x_input"
-                        id="x_input" value="500">
+                        id="x_input" value="0">
                 </div>
 
                 <div class="flex w-full justify-between">
                     <div>Y pos:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="y_input"
-                        id="y_input" value="500">
+                        id="y_input" value="0">
                 </div>
 
                 <div class="flex w-full justify-between">
@@ -125,13 +125,13 @@
                 <div class="flex w-full justify-between">
                     <div>X pos:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="x_input"
-                        id="x_input" value="300">
+                        id="x_input" value="2e8">
                 </div>
 
                 <div class="flex w-full justify-between">
                     <div>Y pos:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="y_input"
-                        id="y_input" value="300">
+                        id="y_input" value="2e8">
                 </div>
 
                 <div class="flex w-full justify-between">
@@ -149,13 +149,13 @@
                 <div class="flex w-full justify-between">
                     <div>Init X Velocity:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="xvelocity_input"
-                        id="xvelocity_input" value="2e10">
+                        id="xvelocity_input" value="-1e6">
                 </div>
 
                 <div class="flex w-full justify-between">
                     <div>Init Y Velocity:</div>
                     <input class="bg-black border-white border-[1px] text-center" type="number" name="yvelocity_input"
-                        id="yvelocity_input" value="0">
+                        id="yvelocity_input" value="-3e5">
                 </div>
 
                 <div class="flex w-full justify-between">

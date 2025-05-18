@@ -16,6 +16,7 @@ let bodies = [];
 const G = 6.67430e-11;
 
 let scale = 1e6;
+let scale_text;
 let visual_scale = 1e2;
 
 let fps = 60;
@@ -35,15 +36,21 @@ let body_creator;
 let delete_body_button;
 let body_number = 1;
 
+let dragging = false;
+let last_drag_x, last_drag_y;
+
+let screen_pos_x = 0
+let screen_pos_y = 0;
+
 class Body {
     constructor(x, y, radius, mass, color, xVelocity = 0, yVelocity = 0, xAcceleration = 0, yAcceleration = 0,) {
-        this.x = x / 1000 * scale;
-        this.y = y / 1000 * scale;
+        this.x = x; // In METERS
+        this.y = y;
         this.xVelocityHalf = xVelocity - xAcceleration * dt / 2;
         this.yVelocityHalf = yVelocity - yAcceleration * dt / 2;
         this.xAcceleration = xAcceleration;
         this.yAcceleration = yAcceleration;
-        this.radius = radius / scale * visual_scale;
+        this.radius = radius;
         this.mass = mass;
         this.color = color;
         bodies.push(this);
@@ -90,7 +97,7 @@ function update() {
                 continue;
             }
 
-            body2 = bodies[j]
+            body2 = bodies[j];
 
             deltaX = body2.x - body.x;
             deltaY = body2.y - body.y;
@@ -113,8 +120,8 @@ function update() {
         body = bodies[i];
         body.xVelocityHalf += body.xAcceleration * dt;
         body.yVelocityHalf += body.yAcceleration * dt;
-        body.x += body.xVelocityHalf * dt / scale;
-        body.y += body.yVelocityHalf * dt / scale;
+        body.x += body.xVelocityHalf * dt;
+        body.y += body.yVelocityHalf * dt;
     }
 }
 
@@ -128,7 +135,7 @@ function draw(ctx, canvas) {
         ctx.beginPath();
         body = bodies[i];
         ctx.fillStyle = body.color;
-        ctx.arc(body.x * window.innerWidth / scale, body.y * window.innerHeight / scale, body.radius, 0, Math.PI * 2);
+        ctx.arc(((body.x / scale + 1 / 2) * window.innerWidth + screen_pos_x), ((body.y / scale + 1 / 2) * window.innerHeight + screen_pos_y), body.radius / scale * visual_scale, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -152,6 +159,16 @@ function animate(ctx, canvas) {
     draw(ctx, canvas);
 }
 
+function update_scale(scale) {
+    scale_text = (200 * scale / 1000);
+    if (scale_text > 10000) {
+        scale_text = scale_text.toExponential(1);
+    } else {
+        scale_text = Math.round(scale_text);
+    }
+    screen_scale.textContent = scale_text + " km";
+}
+
 simulate_button.addEventListener("click", (() => {
     bodies = [];
 
@@ -161,7 +178,7 @@ simulate_button.addEventListener("click", (() => {
     visual_scale = visual_scale_input.value;
     fps = fps_input.value;
 
-    screen_scale.textContent = (200 * scale).toExponential(1) + " km";
+    update_scale(scale);
     time_scale.textContent = parseFloat(speed).toExponential() + " days/second";
     bodiesDeclaration();
 }))
@@ -171,6 +188,42 @@ window.addEventListener("keydown", (event) => {
         simulate_button.click();
     }
 });
+
+window.addEventListener("wheel", (event) => {
+    const zoomIntensity = 0.001;
+    const zoom = Math.exp(event.deltaY * zoomIntensity);
+    scale *= zoom;
+    update_scale(scale);
+})
+
+window.addEventListener("mouseup", () => {
+    dragging = false;
+    last_drag_x = null;
+    last_drag_y = null;
+    canvas.classList.add("cursor-grab");
+    canvas.classList.remove("cursor-grabbing");
+})
+
+window.addEventListener("mousemove", (event) => {
+    if (dragging) {
+        let drag_x = event.offsetX;
+        let drag_y = event.offsetY;
+        if (last_drag_x) {
+            screen_pos_x += drag_x - last_drag_x;
+            screen_pos_y += drag_y - last_drag_y;
+            console.log(screen_pos_x, screen_pos_y);
+        }
+        last_drag_x = drag_x;
+        last_drag_y = drag_y;
+    }
+})
+
+canvas.addEventListener("mousedown", () => {
+    dragging = true;
+    canvas.classList.remove("cursor-grab");
+    canvas.classList.add("cursor-grabbing");
+})
+
 
 pause_button.addEventListener("click", (() => {
     if (pause_button.textContent === "▶") {
@@ -197,8 +250,8 @@ close_menu_button.addEventListener("click", (() => {
 add_body_button.addEventListener("click", (() => {
     // Variables with default values
     let color_input = "#f6b73c";
-    let x_input = 50;
-    let y_input = 50;
+    let x_input = 0;
+    let y_input = 0;
     let radius_input = 80000;
     let mass_input = 6e30;
     let xvelocity_input = 0;
