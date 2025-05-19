@@ -44,7 +44,7 @@ let screen_pos_y = 0;
 
 class Body {
     constructor(x, y, radius, mass, color, xVelocity = 0, yVelocity = 0, xAcceleration = 0, yAcceleration = 0,) {
-        this.x = x; // In METERS
+        this.x = x; // In KILOMETERS
         this.y = y;
         this.xVelocityHalf = xVelocity - xAcceleration * dt / 2;
         this.yVelocityHalf = yVelocity - yAcceleration * dt / 2;
@@ -85,6 +85,54 @@ function bodiesDeclaration() {
     });
 }
 
+function body_fusion(body_1, body_2) {
+    let total_mass = body_1.mass + body_2.mass
+    let body_1_volume = body_1.radius ** 3 * Math.PI * 4 / 3;
+    let body_2_volume = body_2.radius ** 3 * Math.PI * 4 / 3;
+    let total_volume = body_1_volume + body_2_volume;
+
+    body_1.xVelocityHalf = (body_1.mass * body_1.xVelocityHalf + body_2.mass * body_2.xVelocityHalf) / total_mass;
+    body_1.yVelocityHalf = (body_1.mass * body_1.yVelocityHalf + body_2.mass * body_2.yVelocityHalf) / total_mass;
+
+    body_1.x = (body_1.x * body_1.mass + body_2.x * body_2.mass) / total_mass;
+    body_1.y = (body_1.y * body_1.mass + body_2.y * body_2.mass) / total_mass;
+
+    body_1.mass = total_mass;
+    body_1.radius = (total_volume * 3 / 4 / Math.PI) ** (1 / 3);
+    bodies = bodies.filter(b => b !== body_2);
+}
+
+function check_colission(body_1, body_2) {
+    const dx = body_2.x - body_1.x;
+    const dy = body_2.y - body_1.y;
+
+    const dvx = body_2.xVelocityHalf - body_1.xVelocityHalf;
+    const dvy = body_2.yVelocityHalf - body_1.yVelocityHalf;
+
+    const radiiSum = body_1.radius + body_2.radius;
+
+    const a = dvx * dvx + dvy * dvy;
+    const b = 2 * (dx * dvx + dy * dvy);
+    const c = dx * dx + dy * dy - radiiSum * radiiSum;
+
+    const discriminant = b * b - 4 * a * c;
+
+    if (discriminant < 0 || a === 0) return;
+
+    const sqrtD = Math.sqrt(discriminant);
+    const t1 = (-b - sqrtD) / (2 * a);
+    const t2 = (-b + sqrtD) / (2 * a);
+
+    if ((t1 >= 0 && t1 <= dt) || (t2 >= 0 && t2 <= dt)) {
+        if (body_1.mass >= body_2.mass) {
+            body_fusion(body_1, body_2);
+        } else {
+            body_fusion(body_2, body_1);
+        }
+    }
+}
+
+
 function update() {
     let body, body2, deltaX, deltaY, hipotenuse, cosine, sine, acceleration, xAcceleration, yAcceleration;
     for (let i = 0; i < bodies.length; i++) {
@@ -102,9 +150,6 @@ function update() {
             deltaX = body2.x - body.x;
             deltaY = body2.y - body.y;
             hipotenuse = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-            if (hipotenuse < 1e-6) {
-                hipotenuse = 1e-1;
-            }
             cosine = deltaX / hipotenuse;
             sine = deltaY / hipotenuse;
             acceleration = G * body2.mass / (hipotenuse ** 2);
@@ -112,6 +157,7 @@ function update() {
             yAcceleration = sine * acceleration;
             body.xAcceleration += xAcceleration;
             body.yAcceleration += yAcceleration;
+            check_colission(body, body2);
         }
     }
 
@@ -129,13 +175,14 @@ function draw(ctx, canvas) {
     let body;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let point_0_x = window.innerWidth / 2;
+    let point_0_y = window.innerHeight / 2;
 
     for (let i = 0; i < bodies.length; i++) {
         ctx.beginPath();
         body = bodies[i];
         ctx.fillStyle = body.color;
-        ctx.arc(((body.x / scale + 1 / 2) * window.innerWidth + screen_pos_x), ((body.y / scale + 1 / 2) * window.innerHeight + screen_pos_y), body.radius / scale * visual_scale, 0, Math.PI * 2);
+        ctx.arc(((body.x / scale) + point_0_x + screen_pos_x), (-(body.y / scale) + point_0_y + screen_pos_y), body.radius / scale * visual_scale, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -160,7 +207,7 @@ function animate(ctx, canvas) {
 }
 
 function update_scale(scale) {
-    scale_text = (200 * scale / 1000);
+    scale_text = (200 * scale);
     if (scale_text > 10000) {
         scale_text = scale_text.toExponential(1);
     } else {
@@ -190,10 +237,12 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("wheel", (event) => {
-    const zoomIntensity = 0.001;
-    const zoom = Math.exp(event.deltaY * zoomIntensity);
-    scale *= zoom;
-    update_scale(scale);
+    if (event.target == canvas) {
+        const zoomIntensity = 0.001;
+        const zoom = Math.exp(event.deltaY * zoomIntensity);
+        scale *= zoom;
+        update_scale(scale);
+    }
 })
 
 window.addEventListener("mouseup", () => {

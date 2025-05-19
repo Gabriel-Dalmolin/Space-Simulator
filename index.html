@@ -25,7 +25,7 @@
     <canvas id="canvas" class="bg-black w-full h-full z-0 cursor-grab">
         Your browser cannot run this website
     </canvas>
-    <div class="flex gap-2 text-white absolute top-0 left-0 items-center flex-wrap max-h-[80vh] scroll"
+    <div class="flex gap-2 text-white absolute top-0 left-0 items-center flex-wrap max-h-[80vh] scroll z-50"
         id="menu_container">
         <div class="p-2 bg-black z-10 border-white border-b-[1px] border-r-[1px] rounded-br-lg flex-col items-center justify-center hidden max-h-full"
             id="menu">
@@ -43,13 +43,13 @@
 
             <div class="flex justify-between items-center w-full gap-2">
                 <span>SCALE:</span>
-                <input type="number" name="scale_input" id="scale_input" value="1e9"
+                <input type="number" name="scale_input" id="scale_input" value="1e6"
                     class="bg-black border-white border-[1px] text-center">
             </div>
 
             <div class="flex justify-between items-center w-full gap-2">
                 <span>VISUAL SCALE:</span>
-                <input type="number" name="visual_scale_input" id="visual_scale_input" value="1e5"
+                <input type="number" name="visual_scale_input" id="visual_scale_input" value="1e2"
                     class="bg-black border-white border-[1px] text-center">
             </div>
 
