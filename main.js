@@ -36,6 +36,7 @@ let body_creator;
 let delete_body_button;
 let body_number = 1;
 
+let following = null;
 let dragging = false;
 let last_drag_x, last_drag_y;
 
@@ -43,7 +44,8 @@ let screen_pos_x = 0
 let screen_pos_y = 0;
 
 class Body {
-    constructor(x, y, radius, mass, color, xVelocity = 0, yVelocity = 0, xAcceleration = 0, yAcceleration = 0,) {
+    constructor(body_name, x, y, radius, mass, color, xVelocity = 0, yVelocity = 0, xAcceleration = 0, yAcceleration = 0,) {
+        this.body_name = body_name;
         this.x = x; // In KILOMETERS
         this.y = y;
         this.xVelocityHalf = xVelocity - xAcceleration * dt / 2;
@@ -60,6 +62,7 @@ class Body {
 function bodiesDeclaration() {
     bodies_dom = document.getElementsByClassName("body");
     Array.from(bodies_dom).forEach(body => {
+        let body_name = body.querySelector("h3").textContent;
         x_input_value = parseFloat(body.querySelector("#x_input").value);
         y_input_value = parseFloat(body.querySelector("#y_input").value);
         radius_input_value = parseFloat(body.querySelector("#radius_input").value);
@@ -71,6 +74,7 @@ function bodiesDeclaration() {
         yaccel_input_value = parseFloat(body.querySelector("#yaccel_input").value);
 
         body_creator = new Body(
+            body_name,
             x_input_value,
             y_input_value,
             radius_input_value,
@@ -102,29 +106,9 @@ function body_fusion(body_1, body_2) {
     bodies = bodies.filter(b => b !== body_2);
 }
 
-function check_colission(body_1, body_2) {
-    const dx = body_2.x - body_1.x;
-    const dy = body_2.y - body_1.y;
-
-    const dvx = body_2.xVelocityHalf - body_1.xVelocityHalf;
-    const dvy = body_2.yVelocityHalf - body_1.yVelocityHalf;
-
-    const radiiSum = body_1.radius + body_2.radius;
-
-    const a = dvx * dvx + dvy * dvy;
-    const b = 2 * (dx * dvx + dy * dvy);
-    const c = dx * dx + dy * dy - radiiSum * radiiSum;
-
-    const discriminant = b * b - 4 * a * c;
-
-    if (discriminant < 0 || a === 0) return;
-
-    const sqrtD = Math.sqrt(discriminant);
-    const t1 = (-b - sqrtD) / (2 * a);
-    const t2 = (-b + sqrtD) / (2 * a);
-
-    if ((t1 >= 0 && t1 <= dt) || (t2 >= 0 && t2 <= dt)) {
-        if (body_1.mass >= body_2.mass) {
+function check_colission(body_1, body_2, distance) {
+    if (distance <= body_1.radius + body_2.radius) {
+        if (body_1.mass > body_2.mass) {
             body_fusion(body_1, body_2);
         } else {
             body_fusion(body_2, body_1);
@@ -157,7 +141,7 @@ function update() {
             yAcceleration = sine * acceleration;
             body.xAcceleration += xAcceleration;
             body.yAcceleration += yAcceleration;
-            check_colission(body, body2);
+            check_colission(body, body2, hipotenuse);
         }
     }
 
@@ -177,7 +161,13 @@ function draw(ctx, canvas) {
     canvas.height = window.innerHeight;
     let point_0_x = window.innerWidth / 2;
     let point_0_y = window.innerHeight / 2;
-
+    if (following) {
+        point_0_x += -following.x / scale;
+        point_0_y += following.y / scale;
+        console.log(following);
+        screen_pos_x = 0;
+        screen_pos_y = 0;
+    }
     for (let i = 0; i < bodies.length; i++) {
         ctx.beginPath();
         body = bodies[i];
@@ -360,6 +350,10 @@ add_body_button.addEventListener("click", (() => {
     delete_body_button.classList.add("md:text-3xl");
     delete_body_button.classList.add("delete_body_button");
 
+    delete_body_button = document.createElement("button");
+    delete_body_button.textContent = "╰┈➤";
+    delete_body_button.classList.add("follow_button");
+
     firstRow.appendChild(heading);
     firstRow.appendChild(colorPicker);
     firstRow.appendChild(delete_body_button)
@@ -385,9 +379,16 @@ function delete_body(button) {
     button.parentNode.parentNode.remove()
 }
 
+function follow_body(button) {
+    let body_name = button.parentNode.querySelector("h3").textContent;
+    following = bodies.find((body) => body.body_name == body_name);
+}
+
 menu.addEventListener("click", (e) => {
     if (e.target.classList.contains("delete_body_button")) {
         delete_body(e.target);
+    } else if (e.target.classList.contains("follow_button")) {
+        follow_body(e.target);
     }
 });
 
