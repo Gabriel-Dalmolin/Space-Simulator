@@ -216,7 +216,11 @@ simulate_button.addEventListener("click", (() => {
     fps = fps_input.value;
 
     update_scale(scale);
-    time_scale.textContent = parseFloat(speed).toExponential() + " days/second";
+    let time_scale_text = parseFloat(speed);
+    if (time_scale_text > 9999) {
+        time_scale_text = time_scale_text.toExponential(1);
+    }
+    time_scale.textContent = time_scale_text + " days/second";
     bodiesDeclaration();
 }))
 
